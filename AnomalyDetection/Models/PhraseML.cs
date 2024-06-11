@@ -4,6 +4,6 @@
     {
         public string? Text { get; set; }
 
-        public string? PhraseType { get; set; }
+        public bool IsToxic { get; set; }
     }
 }

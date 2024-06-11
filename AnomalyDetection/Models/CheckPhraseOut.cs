@@ -2,5 +2,5 @@
 
 namespace AnomalyDetection.Models
 {
-    public record CheckPhraseOut(PhraseType PhraseType, long PredictedPhraseId);
+    public record CheckPhraseOut(bool IsToxic, long PredictedPhraseId);
 }

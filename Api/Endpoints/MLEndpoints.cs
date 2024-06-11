@@ -1,4 +1,5 @@
 ﻿using AnomalyDetection.Interfaces;
+using Api.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Endpoints
@@ -9,11 +10,12 @@ namespace Api.Endpoints
             this IEndpointRouteBuilder endpointRouteBuilder)
         {
 
-            endpointRouteBuilder.MapGet("/train", (
+            endpointRouteBuilder.MapGet("/train", async (
                 [FromServices] ITrainUseCase trainUseCase,
                 HttpContext httpContext) =>
             {
-                return trainUseCase.ExecuteAsync(httpContext.RequestAborted);
+                var result = await trainUseCase.ExecuteAsync(httpContext.RequestAborted);
+                return result.MapToIResult();
             });
 
             return endpointRouteBuilder;

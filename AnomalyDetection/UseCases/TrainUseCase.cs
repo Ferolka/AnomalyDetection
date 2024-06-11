@@ -58,7 +58,7 @@ namespace AnomalyDetection.UseCases
             //Load New Data
             IDataView toxicWordDataSet = mlContext.Data.LoadFromEnumerable(toxicWordMlList);
 
-            var options = new SdcaNonCalibratedMulticlassTrainer.Options()
+            var options = new SdcaNonCalibratedBinaryTrainer.Options()
             {
                 // Specify loss function.
 
@@ -67,13 +67,13 @@ namespace AnomalyDetection.UseCases
                 // Increase the maximum number of passes over training data.
                 MaximumNumberOfIterations = 50,
                 // Give the instances of the positive class slightly more weight.
+                LabelColumnName = "IsToxic", // Use the Boolean column directly
+                FeatureColumnName = "Features"
             };
 
-            var preprocessingPipeline = mlContext.Transforms.Conversion
-                .MapValueToKey(inputColumnName: "PhraseType", outputColumnName: "Label")
-                .Append(mlContext.Transforms.Text.FeaturizeText(inputColumnName: "Text", outputColumnName: "Features"))
-                .Append(mlContext.MulticlassClassification.Trainers.SdcaNonCalibrated(options))
-                .Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
+            var preprocessingPipeline = mlContext.Transforms
+                .Text.FeaturizeText(inputColumnName: "Text", outputColumnName: "Features")
+                .Append(mlContext.BinaryClassification.Trainers.SdcaNonCalibrated(options));
 
             var transformedModel = preprocessingPipeline.Fit(toxicWordDataSet);
 

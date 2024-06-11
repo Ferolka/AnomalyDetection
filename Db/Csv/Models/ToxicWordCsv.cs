@@ -8,6 +8,8 @@ namespace Db.Csv.Models
         public string? Text { get; set; }
 
         [Name("is_toxic")]
-        public string? IsToxic { get; set; }
+        [BooleanTrueValues("Toxic")]
+        [BooleanFalseValues("Not Toxic")]
+        public bool IsToxic { get; set; }
     }
 }

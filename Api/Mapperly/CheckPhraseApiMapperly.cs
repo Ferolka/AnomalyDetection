@@ -7,7 +7,7 @@ namespace Api.Mapperly
     [Mapper]
     internal static partial class CheckPhraseApiMapperly
     {
-        [MapperIgnoreTarget(nameof(PhraseML.PhraseType))]
+        [MapperIgnoreTarget(nameof(PhraseML.IsToxic))]
         [MapProperty(nameof(CheckPhraseApiModel.Phrase), nameof(PhraseML.Text))]
         internal static partial PhraseML Map(CheckPhraseApiModel source);
     }

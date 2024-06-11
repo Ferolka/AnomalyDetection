@@ -28,12 +28,12 @@ namespace AnomalyDetection.UseCases
         {
             // Step 1: Make prediction
             var prediction = this._predictionEnginePool.Predict(phraseML);
-            var phraseType = prediction.PhraseType!.GetPhraseType();
+            var isToxic = prediction.Prediction;
 
             // Step 2: Save prediction
             var addPredictedPhrase = await this.AddPredictedPhrase(
                 phraseML,
-                phraseType,
+                isToxic,
                 cancellationToken);
 
             if (!addPredictedPhrase.IsSuccess)
@@ -42,19 +42,19 @@ namespace AnomalyDetection.UseCases
             }
 
             return ResultModel<CheckPhraseOut>.FromSuccess(new CheckPhraseOut(
-                phraseType,
+                isToxic,
                 addPredictedPhrase.Entity!));
         }
 
         private async Task<ResultModel<long>> AddPredictedPhrase(
             PhraseML phraseML,
-            PhraseType phraseType,
+            bool isToxic,
             CancellationToken cancellationToken)
         {
             var predictedPhrase = new PredictedPhrase
             {
                 Checked = false,
-                PhraseType = phraseType,
+                IsToxic = isToxic,
                 Text = phraseML.Text!,
             };
             return await this._predictedPhraseStore
