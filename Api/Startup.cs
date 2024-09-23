@@ -1,15 +1,10 @@
 ﻿using AnomalyDetection.Extensions;
-using AnomalyDetection.Interfaces;
-using AnomalyDetection.Models;
-using Api.ApiModels;
 using Api.Endpoints;
-using Api.Mapperly;
 using Common.Entities;
+using Db;
 using Db.Extensions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.ML;
-using Microsoft.ML;
-using Microsoft.ML.Transforms.TimeSeries;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.OpenApi.Models;
 
 namespace Api
 {
@@ -33,8 +28,59 @@ namespace Api
                 .AddDbServices(this.Configuration, connectionString)
                 .AddAnomalyDetectionServices(this.Configuration);
 
+            services.AddIdentityCore<IdentityUser>()
+                            .AddEntityFrameworkStores<AnomalyDbContext>()
+                            .AddApiEndpoints();
+
+            services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
+            services.AddAuthorizationBuilder();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = false;
+                options.Password.RequiredUniqueChars = 4;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                options.Lockout.MaxFailedAccessAttempts = 10;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings
+                options.User.RequireUniqueEmail = true;
+            });
+
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please enter a valid token",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer"
+                });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type=ReferenceType.SecurityScheme,
+                                Id="Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,13 +89,16 @@ namespace Api
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI();
             }
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapIdentityApi<IdentityUser>();
                 endpoints.MapGet("/", () =>
                 {
                     return Results.Ok("Anomaly detection v1.0.0");
@@ -65,6 +114,9 @@ namespace Api
                     .WithTags("ML")
                     .MapMLEndpoints();
             });
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
     }
 }

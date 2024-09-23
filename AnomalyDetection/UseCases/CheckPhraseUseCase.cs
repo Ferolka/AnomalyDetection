@@ -1,7 +1,5 @@
-﻿using AnomalyDetection.Extensions;
-using AnomalyDetection.Interfaces;
+﻿using AnomalyDetection.Interfaces;
 using AnomalyDetection.Models;
-using Common.Constantans;
 using Common.Entities;
 using Common.Interfaces;
 using Common.Models;

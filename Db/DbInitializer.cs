@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 using Db.Csv.Mapperly;
 using Db.Csv.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
@@ -16,7 +17,9 @@ namespace Db
             if (context.Database.EnsureCreated())
             {
                 var logger = service.GetRequiredService<ILogger<DbInitializer>>();
+                var userManager = service.GetRequiredService<UserManager<IdentityUser>>();
                 SeedDatabase(context, logger);
+                CreateAdminRole(context, userManager);
             }
         }
 
@@ -41,6 +44,23 @@ namespace Db
 
                 context.Phrases.AddRange(ToxicWordCsvMapperly.Map(records));
                 context.SaveChanges();
+            }
+        }
+
+        private static void CreateAdminRole(AnomalyDbContext context, UserManager<IdentityUser> userManager)
+        {
+            var user = new IdentityUser()
+            {
+                UserName = "admin",
+                Email = "admin@default.com",
+            };
+
+            string adminPassword = "Password123";
+            var userResult = userManager.CreateAsync(user, adminPassword).GetAwaiter().GetResult();
+
+            if (userResult.Succeeded)
+            {
+                userManager.AddToRoleAsync(user, "Admin").Wait();
             }
         }
     }

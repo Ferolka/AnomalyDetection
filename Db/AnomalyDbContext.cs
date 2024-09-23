@@ -1,9 +1,10 @@
 ﻿using Common.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Db
 {
-    public class AnomalyDbContext : DbContext
+    public class AnomalyDbContext : IdentityDbContext
     {
         public AnomalyDbContext(DbContextOptions<AnomalyDbContext> dbContextOptions)
             : base(dbContextOptions)

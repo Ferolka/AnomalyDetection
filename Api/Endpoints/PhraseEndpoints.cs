@@ -21,7 +21,8 @@ namespace Api.Endpoints
 
                     return checkPhraseOutResult.MapToIResult(CheckPhraseResponseApiMapperly.Map);
                 })
-                .Produces<CheckPhraseResponseApiModel>();
+                .Produces<CheckPhraseResponseApiModel>()
+                .RequireAuthorization();
 
             endpointRouteBuilder.MapGet("/predictedPhrases", async (
                 [AsParameters] PaginatedModelApiModel paginatedModelApiModel,
@@ -36,7 +37,8 @@ namespace Api.Endpoints
                     return predictedPhraseResult.MapToIResult(
                         x => x.ConvertAll(PredictedPhraseApiMapperly.Map));
                 })
-                .Produces<List<PredictedPhraseApiModel>>();
+                .Produces<List<PredictedPhraseApiModel>>()
+                .RequireAuthorization();
 
             endpointRouteBuilder.MapPut("/verify", async (
                 [FromBody] List<PredictedPhraseApiModel> predictedPhraseApiModels,
@@ -49,7 +51,8 @@ namespace Api.Endpoints
                         .VerifyPredictedPhrases(predictedPhraseList, httpContext.RequestAborted);
 
                     return predictedPhraseResult.MapToIResult();
-                });
+                })
+                .RequireAuthorization();
 
             return endpointRouteBuilder;
         }

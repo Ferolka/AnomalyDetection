@@ -16,7 +16,8 @@ namespace Api.Endpoints
             {
                 var result = await trainUseCase.ExecuteAsync(httpContext.RequestAborted);
                 return result.MapToIResult();
-            });
+            })
+                .RequireAuthorization();
 
             return endpointRouteBuilder;
         }
