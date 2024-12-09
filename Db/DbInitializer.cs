@@ -58,10 +58,10 @@ namespace Db
             string adminPassword = "Password123";
             var userResult = userManager.CreateAsync(user, adminPassword).GetAwaiter().GetResult();
 
-            if (userResult.Succeeded)
-            {
-                userManager.AddToRoleAsync(user, "Admin").Wait();
-            }
+            //if (userResult.Succeeded)
+            //{
+            //    userManager.AddToRoleAsync(user, "Admin").Wait();
+            //}
         }
     }
 }
